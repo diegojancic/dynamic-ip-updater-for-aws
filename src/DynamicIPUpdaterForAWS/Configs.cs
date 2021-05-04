@@ -4,6 +4,10 @@ namespace DynamicIPUpdaterForAWS
 {
     public class Configs
     {
+        public Configs()
+        {
+            Rules = new List<Rule>();
+        }
         public string DeviceName { get; set; }
 
         public List<Rule> Rules { get; set; }

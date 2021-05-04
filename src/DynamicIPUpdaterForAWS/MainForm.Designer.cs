@@ -1,4 +1,4 @@
-﻿namespace EnableRdpInAws
+﻿namespace DynamicIPUpdaterForAWS
 {
     partial class MainForm
     {
@@ -33,7 +33,6 @@
             this.btnClose = new System.Windows.Forms.Button();
             this.lblLocalIP = new System.Windows.Forms.Label();
             this.lblStatus = new System.Windows.Forms.Label();
-            this.lblCloseMessage = new System.Windows.Forms.Label();
             this.pnlMessages = new System.Windows.Forms.FlowLayoutPanel();
             this.SuspendLayout();
             // 
@@ -86,21 +85,6 @@
             this.lblStatus.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.lblStatus.Visible = false;
             // 
-            // lblCloseMessage
-            // 
-            this.lblCloseMessage.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblCloseMessage.BackColor = System.Drawing.Color.Red;
-            this.lblCloseMessage.Font = new System.Drawing.Font("Microsoft Sans Serif", 22F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblCloseMessage.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.lblCloseMessage.Location = new System.Drawing.Point(12, 289);
-            this.lblCloseMessage.Name = "lblCloseMessage";
-            this.lblCloseMessage.Size = new System.Drawing.Size(726, 44);
-            this.lblCloseMessage.TabIndex = 4;
-            this.lblCloseMessage.Text = "Closing port...";
-            this.lblCloseMessage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.lblCloseMessage.Visible = false;
-            // 
             // pnlMessages
             // 
             this.pnlMessages.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -119,7 +103,6 @@
             this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(750, 350);
             this.Controls.Add(this.pnlMessages);
-            this.Controls.Add(this.lblCloseMessage);
             this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.lblLocalIP);
             this.Controls.Add(this.btnClose);
@@ -142,7 +125,6 @@
         private System.Windows.Forms.Button btnClose;
         private System.Windows.Forms.Label lblLocalIP;
         private System.Windows.Forms.Label lblStatus;
-        private System.Windows.Forms.Label lblCloseMessage;
         private System.Windows.Forms.FlowLayoutPanel pnlMessages;
     }
 }

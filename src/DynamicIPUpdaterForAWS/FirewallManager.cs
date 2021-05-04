@@ -79,7 +79,11 @@ namespace DynamicIPUpdaterForAWS
                         Color = Color.DarkGreen
                     };
                 }
-                throw;
+                return new PortChangeResult
+                {
+                    Message = $"Error (Port {rule.Port}): " + ex.Message,
+                    Color = Color.DarkRed
+                };
             }
 
             if (res.HttpStatusCode == HttpStatusCode.OK)
@@ -132,7 +136,11 @@ namespace DynamicIPUpdaterForAWS
                         Color = Color.DarkGreen
                     };
                 }
-                throw;
+                return new PortChangeResult
+                {
+                    Message = $"Error (Port {rule.Port}): " + ex.Message,
+                    Color = Color.DarkRed
+                };
             }
 
             if (res.HttpStatusCode == HttpStatusCode.OK)

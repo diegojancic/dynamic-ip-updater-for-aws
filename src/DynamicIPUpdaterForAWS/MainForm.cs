@@ -4,9 +4,8 @@ using System.Drawing;
 using System.Net;
 using System.Threading;
 using System.Windows.Forms;
-using DynamicIPUpdaterForAWS;
 
-namespace EnableRdpInAws
+namespace DynamicIPUpdaterForAWS
 {
     public partial class MainForm : Form
     {
@@ -61,6 +60,7 @@ namespace EnableRdpInAws
                 index++;
             } while (true);
 
+            configs = loadedConfigs;
             firewallManager = new FirewallManager(ipServer, configs);
             firewallManager.LoadPublicIp();
 
@@ -84,7 +84,7 @@ namespace EnableRdpInAws
 
         private void ClosePorts()
         {
-            if (portClosed) return;
+            if (portClosed || firewallManager == null) return;
             portClosed = true;
 
             pnlMessages.Controls.Clear();
