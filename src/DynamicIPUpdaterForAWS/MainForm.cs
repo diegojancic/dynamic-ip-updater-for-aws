@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Drawing;
-using System.IO;
 using System.Net;
-using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
-using Amazon;
-using Amazon.EC2;
-using Amazon.EC2.Model;
-using Amazon.Runtime.Internal;
+using DynamicIPUpdaterForAWS;
 
 namespace EnableRdpInAws
 {
@@ -18,9 +12,9 @@ namespace EnableRdpInAws
     {
         private static string ipServer;
         private static string localIP;
-        private static string securityGroupId;
-        private static int clientPort;
-        private static int serverPort;
+
+        private Configs configs;
+        private FirewallManager firewallManager;
 
         public MainForm()
         {
@@ -32,163 +26,114 @@ namespace EnableRdpInAws
                                                    | SecurityProtocolType.Ssl3;
 
             ipServer = ConfigurationManager.AppSettings["IPServer"];
-            securityGroupId = ConfigurationManager.AppSettings["SecurityGroupId"];
-
-            clientPort = int.Parse(ConfigurationManager.AppSettings["ClientPortToOpen"]);
-            serverPort = int.Parse(ConfigurationManager.AppSettings["ServerPortToOpen"]);
         }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            localIP = GetPublicIp();
+            var loadedConfigs = new Configs();
+            loadedConfigs.DeviceName = ConfigurationManager.AppSettings["DeviceName"];
 
-            lblLocalIP.Text = localIP;
-
-            OpenPort();
-        }
-
-        private static string GetPublicIp()
-        {
-            var req = WebRequest.Create(ipServer);
-            var response = req.GetResponse();
-
-            if (response == null) throw new Exception("Response returned is null =(.  No internet connection?");
-
-            var responseStream = response.GetResponseStream();
-            if (responseStream == null) throw new Exception("Response stream is null =(.  No internet connection?");
-
-
-            string returnedText;
-            using (responseStream)
-            using (var reader = new StreamReader(responseStream))
+            if (string.IsNullOrWhiteSpace(loadedConfigs.DeviceName))
             {
-                returnedText = reader.ReadToEnd().Trim();
+                MessageBox.Show("Device name not set. Set the 'DeviceName' in the config file.", "Error");
+                Close();
             }
 
-            return returnedText;
-        }
-
-        private void OpenPort()
-        {
-            var client = new AmazonEC2Client();
-
-            AuthorizeSecurityGroupIngressResponse res = null;
-
-            try
+            int index = 1;
+            do
             {
-                res = client.AuthorizeSecurityGroupIngress(new AuthorizeSecurityGroupIngressRequest()
+                var securityGroupId = ConfigurationManager.AppSettings[$"Rule{index}.SecurityGroupId"];
+                if (string.IsNullOrWhiteSpace(securityGroupId) ||
+                    !int.TryParse(ConfigurationManager.AppSettings[$"Rule{index}.PortToOpen"], out int port) ||
+                    port <= 0)
                 {
-                    IpPermissions = new List<IpPermission>() {GetIpPermissionRule()},
-                    GroupId = securityGroupId
-                });
-
-            }
-            catch (AmazonEC2Exception ex)
-            {
-                if (ex.Message.Contains("the specified rule") && ex.Message.Contains("already exists"))
-                {
-                    lblStatus.Text = $"Success: Connection to port {serverPort} is (already) OPEN";
-                    lblStatus.ForeColor = Color.DarkGreen;
-                    lblStatus.Visible = true;
-                    return;
+                    break;
                 }
-                throw;
-            }
 
-            if (res.HttpStatusCode == HttpStatusCode.OK)
+                loadedConfigs.Rules.Add(
+                    new Configs.Rule()
+                    {
+                        Port = port,
+                        SecurityGroupId = securityGroupId
+                    }
+                );
+
+                index++;
+            } while (true);
+
+            firewallManager = new FirewallManager(ipServer, configs);
+            firewallManager.LoadPublicIp();
+
+            lblLocalIP.Text = configs.PublicIp;
+
+            OpenPorts();
+        }
+
+        private void OpenPorts()
+        {
+            var results = firewallManager.OpenPorts();
+
+            pnlMessages.Controls.Clear();
+            foreach (var result in results)
             {
-                lblStatus.Text = $"Success: Connection to port {serverPort} is OPEN";
-                lblStatus.ForeColor = Color.DarkGreen;
-                lblStatus.Visible = true;
-            }
-            else
-            {
-                lblStatus.Text = $"Error: couldn't open port {serverPort}. Code: " + res.HttpStatusCode;
-                lblStatus.ForeColor = Color.DarkRed;
-                lblStatus.Visible = true;
+                AddMessage(result.Message, result.Color);
             }
         }
 
         private bool portClosed = false;
-        private void ClosePort()
+
+        private void ClosePorts()
         {
             if (portClosed) return;
             portClosed = true;
 
-            foreach (Control control in this.Controls)
-            {
-                if (control != lblCloseMessage) control.Visible = false;
-            }
-
-            Text = "Closing port...";
-            lblCloseMessage.Dock = DockStyle.Fill;
-            lblCloseMessage.BackColor = Color.Orange;
-            lblCloseMessage.Visible = true;
+            pnlMessages.Controls.Clear();
+            AddMessage("Closing ports...", Color.Orange, DockStyle.Fill);
             Refresh();
 
-            var client = new AmazonEC2Client();
+            var results = firewallManager.ClosePorts();
 
-            RevokeSecurityGroupIngressResponse res = null;
-            try
-            {
-                res = client.RevokeSecurityGroupIngress(new RevokeSecurityGroupIngressRequest()
-                {
-                    IpPermissions = new List<IpPermission>() {GetIpPermissionRule()},
-                    GroupId = securityGroupId
-                });
-            }
-            catch (AmazonEC2Exception ex)
-            {
-                if (ex.Message.Contains("The specified rule does not exist"))
-                {
-                    lblCloseMessage.Text = $"Success: Connection to port {serverPort} (already) CLOSED";
-                    lblCloseMessage.BackColor = Color.DarkGreen;
 
-                    Refresh();
-                    Thread.Sleep(2500);
-                    return;
-                }
-                throw;
+            pnlMessages.Controls.Clear();
+            foreach (var result in results)
+            {
+                AddMessage(result.Message, result.Color);
             }
 
-            if (res.HttpStatusCode == HttpStatusCode.OK)
-            {
-                lblCloseMessage.Text = $"Success: Connection to port {serverPort} CLOSED";
-                lblCloseMessage.BackColor = Color.DarkGreen;
-
-                Refresh();
-                Thread.Sleep(2500);
-            }
-            else
-            {
-                lblCloseMessage.Text = "Error: couldn't close port. Code: " + res.HttpStatusCode;
-                lblCloseMessage.BackColor = Color.DarkRed;
-
-                Refresh();
-                Thread.Sleep(5000);
-            }
-        }
-
-        private static IpPermission GetIpPermissionRule()
-        {
-            return new IpPermission()
-            {
-                FromPort = clientPort,
-                ToPort = serverPort,
-                IpProtocol = "tcp",
-                IpRanges = new List<string>(1) {localIP + "/32"}
-            };
+            Refresh();
+            Thread.Sleep(2500);
         }
 
         private void btnClose_Click(object sender, EventArgs e)
         {
-            ClosePort();
+            ClosePorts();
             Application.Exit();
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            ClosePort();
+            ClosePorts();
+        }
+
+        private void AddMessage(string message, Color color, DockStyle fill = DockStyle.None)
+        {
+            pnlMessages.Controls.Add(NewLabel(message, color, fill));
+        }
+
+        private Label NewLabel(string text, Color color, DockStyle fill = DockStyle.None)
+        {
+            return new Label
+            {
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
+                Font = new Font("Microsoft Sans Serif", 22F, FontStyle.Regular, GraphicsUnit.Point, ((byte) (0))),
+                ForeColor = SystemColors.ButtonHighlight,
+                Location = new Point(12, 289),
+                Size = new Size(726, 44),
+                TabIndex = 4,
+                Text = text,
+                BackColor = color,
+                TextAlign = ContentAlignment.MiddleCenter
+            };
         }
     }
 }

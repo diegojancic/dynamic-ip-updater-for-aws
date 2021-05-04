@@ -34,6 +34,7 @@
             this.lblLocalIP = new System.Windows.Forms.Label();
             this.lblStatus = new System.Windows.Forms.Label();
             this.lblCloseMessage = new System.Windows.Forms.Label();
+            this.pnlMessages = new System.Windows.Forms.FlowLayoutPanel();
             this.SuspendLayout();
             // 
             // label1
@@ -92,7 +93,7 @@
             this.lblCloseMessage.BackColor = System.Drawing.Color.Red;
             this.lblCloseMessage.Font = new System.Drawing.Font("Microsoft Sans Serif", 22F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblCloseMessage.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.lblCloseMessage.Location = new System.Drawing.Point(12, 165);
+            this.lblCloseMessage.Location = new System.Drawing.Point(12, 289);
             this.lblCloseMessage.Name = "lblCloseMessage";
             this.lblCloseMessage.Size = new System.Drawing.Size(726, 44);
             this.lblCloseMessage.TabIndex = 4;
@@ -100,11 +101,24 @@
             this.lblCloseMessage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.lblCloseMessage.Visible = false;
             // 
+            // pnlMessages
+            // 
+            this.pnlMessages.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlMessages.AutoSize = true;
+            this.pnlMessages.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.pnlMessages.Location = new System.Drawing.Point(12, 129);
+            this.pnlMessages.Name = "pnlMessages";
+            this.pnlMessages.Size = new System.Drawing.Size(726, 157);
+            this.pnlMessages.TabIndex = 5;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(750, 350);
+            this.Controls.Add(this.pnlMessages);
             this.Controls.Add(this.lblCloseMessage);
             this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.lblLocalIP);
@@ -118,6 +132,7 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -128,6 +143,7 @@
         private System.Windows.Forms.Label lblLocalIP;
         private System.Windows.Forms.Label lblStatus;
         private System.Windows.Forms.Label lblCloseMessage;
+        private System.Windows.Forms.FlowLayoutPanel pnlMessages;
     }
 }
 
