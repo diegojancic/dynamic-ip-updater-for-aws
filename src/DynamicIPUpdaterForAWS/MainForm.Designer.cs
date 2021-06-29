@@ -28,11 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.label1 = new System.Windows.Forms.Label();
             this.btnClose = new System.Windows.Forms.Button();
             this.lblLocalIP = new System.Windows.Forms.Label();
             this.pnlMessages = new System.Windows.Forms.FlowLayoutPanel();
+            this.delayLoadInfo = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // label1
@@ -83,6 +85,11 @@
             this.pnlMessages.Size = new System.Drawing.Size(621, 182);
             this.pnlMessages.TabIndex = 5;
             // 
+            // delayLoadInfo
+            // 
+            this.delayLoadInfo.Interval = 5;
+            this.delayLoadInfo.Tick += new System.EventHandler(this.delayLoadInfo_Tick);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -109,6 +116,7 @@
         private System.Windows.Forms.Button btnClose;
         private System.Windows.Forms.Label lblLocalIP;
         private System.Windows.Forms.FlowLayoutPanel pnlMessages;
+        private System.Windows.Forms.Timer delayLoadInfo;
     }
 }
 

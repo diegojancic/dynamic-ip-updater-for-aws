@@ -62,6 +62,13 @@ namespace DynamicIPUpdaterForAWS
 
             configs = loadedConfigs;
             firewallManager = new FirewallManager(ipServer, configs);
+
+            delayLoadInfo.Enabled = true;
+        }
+
+        private void delayLoadInfo_Tick(object sender, EventArgs e)
+        {
+            delayLoadInfo.Enabled = false;
             firewallManager.LoadPublicIp();
 
             lblLocalIP.Text = configs.PublicIp;
