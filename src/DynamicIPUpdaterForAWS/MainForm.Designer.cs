@@ -35,6 +35,7 @@
             this.lblLocalIP = new System.Windows.Forms.Label();
             this.pnlMessages = new System.Windows.Forms.FlowLayoutPanel();
             this.delayLoadInfo = new System.Windows.Forms.Timer(this.components);
+            this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.SuspendLayout();
             // 
             // label1
@@ -90,6 +91,15 @@
             this.delayLoadInfo.Interval = 5;
             this.delayLoadInfo.Tick += new System.EventHandler(this.delayLoadInfo_Tick);
             // 
+            // notifyIcon1
+            // 
+            this.notifyIcon1.BalloonTipIcon = System.Windows.Forms.ToolTipIcon.Info;
+            this.notifyIcon1.BalloonTipText = "double click to open";
+            this.notifyIcon1.BalloonTipTitle = "Dynamic IP Updater";
+            this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
+            this.notifyIcon1.Text = "Dynamic IP Updater";
+            this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseDoubleClick);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -106,6 +116,7 @@
             this.Text = "Dynamic IP Updater For AWS";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
+            this.Resize += new System.EventHandler(this.MainForm_Resize);
             this.ResumeLayout(false);
 
         }
@@ -117,6 +128,7 @@
         private System.Windows.Forms.Label lblLocalIP;
         private System.Windows.Forms.FlowLayoutPanel pnlMessages;
         private System.Windows.Forms.Timer delayLoadInfo;
+        private System.Windows.Forms.NotifyIcon notifyIcon1;
     }
 }
 
