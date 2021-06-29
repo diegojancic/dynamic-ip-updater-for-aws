@@ -74,9 +74,11 @@ namespace DynamicIPUpdaterForAWS
             var results = firewallManager.OpenPorts();
 
             pnlMessages.Controls.Clear();
+            Refresh();
             foreach (var result in results)
             {
                 AddMessage(result.Message, result.Color);
+                Refresh();
             }
         }
 
@@ -88,19 +90,16 @@ namespace DynamicIPUpdaterForAWS
             portClosed = true;
 
             pnlMessages.Controls.Clear();
-            AddMessage("Closing ports...", Color.Orange, DockStyle.Fill);
+            AddMessage("Closing ports...", Color.Orange);
             Refresh();
 
             var results = firewallManager.ClosePorts();
-
-
-            pnlMessages.Controls.Clear();
             foreach (var result in results)
             {
                 AddMessage(result.Message, result.Color);
+                Refresh();
             }
-
-            Refresh();
+            
             Thread.Sleep(2500);
         }
 
@@ -115,24 +114,22 @@ namespace DynamicIPUpdaterForAWS
             ClosePorts();
         }
 
-        private void AddMessage(string message, Color color, DockStyle fill = DockStyle.None)
+        private void AddMessage(string message, Color color)
         {
-            pnlMessages.Controls.Add(NewLabel(message, color, fill));
+            pnlMessages.Controls.Add(NewLabel(message, color));
         }
 
-        private Label NewLabel(string text, Color color, DockStyle fill = DockStyle.None)
+        private Label NewLabel(string text, Color color)
         {
             return new Label
             {
-                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
-                Font = new Font("Microsoft Sans Serif", 22F, FontStyle.Regular, GraphicsUnit.Point, ((byte) (0))),
+                Font = new Font("Microsoft Sans Serif", 12F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
                 ForeColor = SystemColors.ButtonHighlight,
-                Location = new Point(12, 289),
-                Size = new Size(726, 44),
-                TabIndex = 4,
+                Size = new Size(pnlMessages.Size.Width - 20, 44),
                 Text = text,
                 BackColor = color,
-                TextAlign = ContentAlignment.MiddleCenter
+                TextAlign = ContentAlignment.MiddleLeft,
+                Margin = new Padding(0, 0, 0, 6)
             };
         }
     }

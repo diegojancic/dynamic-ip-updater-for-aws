@@ -43,15 +43,12 @@ namespace DynamicIPUpdaterForAWS
             _configs.PublicIp = returnedText;
         }
 
-        public List<PortChangeResult> OpenPorts()
+        public IEnumerable<PortChangeResult> OpenPorts()
         {
-            var results = new List<PortChangeResult>();
             foreach (var rule in _configs.Rules)
             {
-                results.Add(OpenPort(rule));
+                yield return OpenPort(rule);
             }
-
-            return results;
         }
 
         private PortChangeResult OpenPort(Configs.Rule rule)
@@ -102,15 +99,12 @@ namespace DynamicIPUpdaterForAWS
             };
         }
 
-        public List<PortChangeResult> ClosePorts()
+        public IEnumerable<PortChangeResult> ClosePorts()
         {
-            var results = new List<PortChangeResult>();
             foreach (var rule in _configs.Rules)
             {
-                results.Add(ClosePort(rule));
+                yield return ClosePort(rule);
             }
-
-            return results;
         }
 
         private PortChangeResult ClosePort(Configs.Rule rule)
@@ -120,9 +114,10 @@ namespace DynamicIPUpdaterForAWS
             RevokeSecurityGroupIngressResponse res = null;
             try
             {
+                var ipRule = GetIpPermissionRule(rule, false);
                 res = client.RevokeSecurityGroupIngress(new RevokeSecurityGroupIngressRequest()
                 {
-                    IpPermissions = new List<IpPermission>() { GetIpPermissionRule(rule) },
+                    IpPermissions = new List<IpPermission>() { ipRule },
                     GroupId = rule.SecurityGroupId
                 });
             }
@@ -159,7 +154,7 @@ namespace DynamicIPUpdaterForAWS
             };
         }
 
-        private IpPermission GetIpPermissionRule(Configs.Rule rule)
+        private IpPermission GetIpPermissionRule(Configs.Rule rule, bool setDescription = true)
         {
             return new IpPermission()
             {
@@ -171,7 +166,7 @@ namespace DynamicIPUpdaterForAWS
                     new IpRange()
                     {
                         CidrIp = _configs.PublicIp + "/32",
-                        Description = _configs.DeviceName
+                        Description = setDescription ? _configs.DeviceName : null
                     }
                 }
             };
