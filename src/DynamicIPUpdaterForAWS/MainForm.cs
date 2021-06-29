@@ -106,7 +106,7 @@ namespace DynamicIPUpdaterForAWS
                 AddMessage(result.Message, result.Color);
                 Refresh();
             }
-            
+
             Thread.Sleep(2500);
         }
 
@@ -138,6 +138,29 @@ namespace DynamicIPUpdaterForAWS
                 TextAlign = ContentAlignment.MiddleLeft,
                 Margin = new Padding(0, 0, 0, 6)
             };
+        }
+
+        private void MainForm_Resize(object sender, EventArgs e)
+        {
+            if (WindowState == FormWindowState.Minimized)
+            {
+                notifyIcon1.Visible = true;
+                // if necessary uncomment this
+                //notifyIcon1.ShowBalloonTip(1000);
+                Hide();
+            }
+
+            else if (WindowState == FormWindowState.Normal)
+            {
+                notifyIcon1.Visible = false;
+            }
+        }
+
+        private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            Show();
+            WindowState = FormWindowState.Normal;
+            notifyIcon1.Visible = false;
         }
     }
 }
